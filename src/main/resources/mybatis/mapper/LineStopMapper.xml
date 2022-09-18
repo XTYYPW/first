@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.LineStopMapper">
+    
+    <resultMap type="LineStop" id="LineStopResult">
+        <result property="lineId"    column="line_id"    />
+        <result property="stopId"    column="stop_id"    />
+        <result property="index"    column="index"    />
+    </resultMap>
+
+    <sql id="selectLineStopVo">
+        select line_id, stop_id, `index` from line_stop
+    </sql>
+
+    <select id="selectLineStopList" parameterType="LineStop" resultMap="LineStopResult">
+        <include refid="selectLineStopVo"/>
+        <where>  
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="stopId != null "> and stop_id = #{stopId}</if>
+            <if test="index != null "> and index = #{index}</if>
+        </where>
+    </select>
+    
+    <select id="selectLineStopById" parameterType="Long" resultMap="LineStopResult">
+        <include refid="selectLineStopVo"/>
+        where line_id = #{lineId}
+    </select>
+        
+    <insert id="insertLineStop" parameterType="LineStop">
+        insert into line_stop
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="lineId != null">line_id,</if>
+            <if test="stopId != null">stop_id,</if>
+            <if test="index != null">index,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="lineId != null">#{lineId},</if>
+            <if test="stopId != null">#{stopId},</if>
+            <if test="index != null">#{index},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLineStop" parameterType="LineStop">
+        update line_stop
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="stopId != null">stop_id = #{stopId},</if>
+            <if test="index != null">index = #{index},</if>
+        </trim>
+        where line_id = #{lineId}
+    </update>
+
+    <delete id="deleteLineStopById" parameterType="Long">
+        delete from line_stop where line_id = #{lineId}
+    </delete>
+
+    <delete id="deleteLineStopByIds" parameterType="String">
+        delete from line_stop where line_id in 
+        <foreach item="lineId" collection="array" open="(" separator="," close=")">
+            #{lineId}
+        </foreach>
+    </delete>
+    
+</mapper>

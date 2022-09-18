@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.BusMapper">
+    
+    <resultMap type="com.hr.vo.BusVo" id="BusResult">
+        <result property="busId"    column="bus_id"    />
+        <result property="busNumber"    column="bus_number"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="teamId"    column="team_id"    />
+        <result property="driverPhone"    column="driver_phone"    />
+        <result property="driverName"    column="driver_name"    />
+        <result property="busStatus"    column="bus_status"    />
+        <result property="companyName"    column="company_name"    />
+        <result property="teamName"    column="team_name"    />
+
+    </resultMap>
+
+    <sql id="selectBusVo">
+        select bus_id, bus_number, line_id, team_id, driver_phone, driver_name, bus_status, company_name  from bus
+    </sql>
+
+    <select id="selectBusList" parameterType="Bus" resultMap="BusResult">
+        select bus.bus_id, bus.bus_number, bus.line_id, bus.team_id, bus.driver_phone, bus.driver_name, bus.bus_status, bus.company_name ,team.team_name from bus
+            left join team on bus.team_id = team.team_id
+        <where>  
+            <if test="busNumber != null  and busNumber != ''"> and bus_number = #{busNumber}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="teamId != null "> and team_id = #{teamId}</if>
+            <if test="driverPhone != null  and driverPhone != ''"> and driver_phone = #{driverPhone}</if>
+            <if test="driverName != null  and driverName != ''"> and driver_name like concat('%', #{driverName}, '%')</if>
+            <if test="busStatus != null "> and bus_status = #{busStatus}</if>
+            <if test="companyName != null  and companyName != ''"> and company_name like concat('%', #{companyName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectBusById" parameterType="Long" resultMap="BusResult">
+        <include refid="selectBusVo"/>
+        where bus_id = #{busId}
+    </select>
+        
+    <insert id="insertBus" parameterType="Bus" useGeneratedKeys="true" keyProperty="busId">
+        insert into bus
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="busNumber != null">bus_number,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="teamId != null">team_id,</if>
+            <if test="driverPhone != null and driverPhone != ''">driver_phone,</if>
+            <if test="driverName != null">driver_name,</if>
+            <if test="busStatus != null">bus_status,</if>
+            <if test="companyName != null">company_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="busNumber != null">#{busNumber},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="teamId != null">#{teamId},</if>
+            <if test="driverPhone != null and driverPhone != ''">#{driverPhone},</if>
+            <if test="driverName != null">#{driverName},</if>
+            <if test="busStatus != null">#{busStatus},</if>
+            <if test="companyName != null">#{companyName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBus" parameterType="Bus">
+        update bus
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="busNumber != null">bus_number = #{busNumber},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="teamId != null">team_id = #{teamId},</if>
+            <if test="driverPhone != null and driverPhone != ''">driver_phone = #{driverPhone},</if>
+            <if test="driverName != null">driver_name = #{driverName},</if>
+            <if test="busStatus != null">bus_status = #{busStatus},</if>
+            <if test="companyName != null">company_name = #{companyName},</if>
+        </trim>
+        where bus_id = #{busId}
+    </update>
+
+    <delete id="deleteBusById" parameterType="Long">
+        delete from bus where bus_id = #{busId}
+    </delete>
+
+    <delete id="deleteBusByIds" parameterType="String">
+        delete from bus where bus_id in 
+        <foreach item="busId" collection="array" open="(" separator="," close=")">
+            #{busId}
+        </foreach>
+    </delete>
+    
+</mapper>

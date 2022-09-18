@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.LineMapper">
+
+    <resultMap type="Line" id="LineResult">
+        <result property="lineId" column="line_id"/>
+        <result property="teamId" column="team_id"/>
+        <result property="lineName" column="line_name"/>
+        <result property="lineType" column="line_type"/>
+        <result property="linePrice" column="line_price"/>
+        <result property="upDown" column="up_down"/>
+        <result property="upStarttime" column="up_starttime"/>
+        <result property="upOvertime" column="up_overtime"/>
+        <result property="downStarttime" column="down_starttime"/>
+        <result property="downOvertime" column="down_overtime"/>
+        <result property="lineStatus" column="line_status"/>
+    </resultMap>
+
+
+    <resultMap type="Stop" id="StopResult">
+        <result property="stopId"    column="stop_id"    />
+        <result property="stopName"    column="stop_name"    />
+        <result property="stopDirection"    column="stop_direction"    />
+        <result property="stopLongitude"    column="stop_longitude"    />
+        <result property="stopLatitude"    column="stop_latitude"    />
+        <result property="stopStatus"    column="stop_status"    />
+    </resultMap>
+
+
+
+    <sql id="selectLineVo">
+        select line_id,
+               team_id,
+               line_name,
+               line_type,
+               line_price,
+               up_down,
+               up_starttime,
+               up_overtime,
+               down_starttime,
+               down_overtime,
+               line_status
+        from line
+    </sql>
+
+    <select id="selectLineList" parameterType="Line" resultMap="LineResult">
+        <include refid="selectLineVo"/>
+        <where>
+            <if test="teamId != null ">and team_id = #{teamId}</if>
+            <if test="lineName != null  and lineName != ''">and line_name like concat('%', #{lineName}, '%')</if>
+            <if test="lineType != null  and lineType != ''">and line_type = #{lineType}</if>
+            <if test="linePrice != null ">and line_price = #{linePrice}</if>
+            <if test="upDown != null  and upDown != ''">and up_down = #{upDown}</if>
+            <if test="upStarttime != null ">and up_starttime = #{upStarttime}</if>
+            <if test="upOvertime != null ">and up_overtime = #{upOvertime}</if>
+            <if test="downStarttime != null ">and down_starttime = #{downStarttime}</if>
+            <if test="downOvertime != null ">and down_overtime = #{downOvertime}</if>
+            <if test="lineStatus != null ">and line_status = #{lineStatus}</if>
+        </where>
+    </select>
+
+    <select id="selectLineById" parameterType="Long" resultMap="LineResult">
+        <include refid="selectLineVo"/>
+        where line_id = #{lineId}
+    </select>
+    <select id="querySingleLine" resultMap="StopResult">
+        select s.stop_id, s.stop_name, s.stop_direction, s.stop_longitude, s.stop_latitude, s.stop_status
+        from stop s
+                 left join line_stop ls on s.stop_id = ls.stop_id
+        where ls.line_id = #{lineId} and s.stop_direction = IF(#{shangxia}='1',"下行","上行")
+    </select>
+
+    <insert id="insertLine" parameterType="Line" useGeneratedKeys="true" keyProperty="lineId">
+        insert into line
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teamId != null">team_id,</if>
+            <if test="lineName != null">line_name,</if>
+            <if test="lineType != null">line_type,</if>
+            <if test="linePrice != null">line_price,</if>
+            <if test="upDown != null">up_down,</if>
+            <if test="upStarttime != null">up_starttime,</if>
+            <if test="upOvertime != null">up_overtime,</if>
+            <if test="downStarttime != null">down_starttime,</if>
+            <if test="downOvertime != null">down_overtime,</if>
+            <if test="lineStatus != null">line_status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teamId != null">#{teamId},</if>
+            <if test="lineName != null">#{lineName},</if>
+            <if test="lineType != null">#{lineType},</if>
+            <if test="linePrice != null">#{linePrice},</if>
+            <if test="upDown != null">#{upDown},</if>
+            <if test="upStarttime != null">#{upStarttime},</if>
+            <if test="upOvertime != null">#{upOvertime},</if>
+            <if test="downStarttime != null">#{downStarttime},</if>
+            <if test="downOvertime != null">#{downOvertime},</if>
+            <if test="lineStatus != null">#{lineStatus},</if>
+        </trim>
+    </insert>
+
+    <update id="updateLine" parameterType="Line">
+        update line
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teamId != null">team_id = #{teamId},</if>
+            <if test="lineName != null">line_name = #{lineName},</if>
+            <if test="lineType != null">line_type = #{lineType},</if>
+            <if test="linePrice != null">line_price = #{linePrice},</if>
+            <if test="upDown != null">up_down = #{upDown},</if>
+            <if test="upStarttime != null">up_starttime = #{upStarttime},</if>
+            <if test="upOvertime != null">up_overtime = #{upOvertime},</if>
+            <if test="downStarttime != null">down_starttime = #{downStarttime},</if>
+            <if test="downOvertime != null">down_overtime = #{downOvertime},</if>
+            <if test="lineStatus != null">line_status = #{lineStatus},</if>
+        </trim>
+        where line_id = #{lineId}
+    </update>
+
+    <delete id="deleteLineById" parameterType="Long">
+        delete
+        from line
+        where line_id = #{lineId}
+    </delete>
+
+    <delete id="deleteLineByIds" parameterType="String">
+        delete from line where line_id in
+        <foreach item="lineId" collection="array" open="(" separator="," close=")">
+            #{lineId}
+        </foreach>
+    </delete>
+
+</mapper>

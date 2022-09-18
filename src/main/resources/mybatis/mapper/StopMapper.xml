@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.StopMapper">
+    
+    <resultMap type="Stop" id="StopResult">
+        <result property="stopId"    column="stop_id"    />
+        <result property="stopName"    column="stop_name"    />
+        <result property="stopDirection"    column="stop_direction"    />
+        <result property="stopLongitude"    column="stop_longitude"    />
+        <result property="stopLatitude"    column="stop_latitude"    />
+        <result property="stopStatus"    column="stop_status"    />
+    </resultMap>
+
+    <sql id="selectStopVo">
+        select stop_id, stop_name, stop_direction, stop_longitude, stop_latitude, stop_status from stop
+    </sql>
+
+    <select id="selectStopList" parameterType="Stop" resultMap="StopResult">
+        <include refid="selectStopVo"/>
+        <where>  
+            <if test="stopName != null  and stopName != ''"> and stop_name like concat('%', #{stopName}, '%')</if>
+            <if test="stopDirection != null  and stopDirection != ''"> and stop_direction = #{stopDirection}</if>
+            <if test="stopLongitude != null  and stopLongitude != ''"> and stop_longitude = #{stopLongitude}</if>
+            <if test="stopLatitude != null  and stopLatitude != ''"> and stop_latitude = #{stopLatitude}</if>
+            <if test="stopStatus != null "> and stop_status = #{stopStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectStopById" parameterType="Long" resultMap="StopResult">
+        <include refid="selectStopVo"/>
+        where stop_id = #{stopId}
+    </select>
+        
+    <insert id="insertStop" parameterType="Stop" useGeneratedKeys="true" keyProperty="stopId">
+        insert into stop
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stopName != null">stop_name,</if>
+            <if test="stopDirection != null">stop_direction,</if>
+            <if test="stopLongitude != null">stop_longitude,</if>
+            <if test="stopLatitude != null">stop_latitude,</if>
+            <if test="stopStatus != null">stop_status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="stopName != null">#{stopName},</if>
+            <if test="stopDirection != null">#{stopDirection},</if>
+            <if test="stopLongitude != null">#{stopLongitude},</if>
+            <if test="stopLatitude != null">#{stopLatitude},</if>
+            <if test="stopStatus != null">#{stopStatus},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStop" parameterType="Stop">
+        update stop
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="stopName != null">stop_name = #{stopName},</if>
+            <if test="stopDirection != null">stop_direction = #{stopDirection},</if>
+            <if test="stopLongitude != null">stop_longitude = #{stopLongitude},</if>
+            <if test="stopLatitude != null">stop_latitude = #{stopLatitude},</if>
+            <if test="stopStatus != null">stop_status = #{stopStatus},</if>
+        </trim>
+        where stop_id = #{stopId}
+    </update>
+
+    <delete id="deleteStopById" parameterType="Long">
+        delete from stop where stop_id = #{stopId}
+    </delete>
+
+    <delete id="deleteStopByIds" parameterType="String">
+        delete from stop where stop_id in 
+        <foreach item="stopId" collection="array" open="(" separator="," close=")">
+            #{stopId}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hr.mapper.TeamMapper">
+    
+    <resultMap type="Team" id="TeamResult">
+        <result property="teamId"    column="team_id"    />
+        <result property="teamName"    column="team_name"    />
+        <result property="admin"    column="admin"    />
+        <result property="phone"    column="phone"    />
+    </resultMap>
+
+    <sql id="selectTeamVo">
+        select team_id, team_name, admin, phone from team
+    </sql>
+
+    <select id="selectTeamList" parameterType="Team" resultMap="TeamResult">
+        <include refid="selectTeamVo"/>
+        <where>  
+            <if test="teamName != null  and teamName != ''"> and team_name like concat('%', #{teamName}, '%')</if>
+            <if test="admin != null  and admin != ''"> and admin = #{admin}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+        </where>
+    </select>
+    
+    <select id="selectTeamById" parameterType="Long" resultMap="TeamResult">
+        <include refid="selectTeamVo"/>
+        where team_id = #{teamId}
+    </select>
+        
+    <insert id="insertTeam" parameterType="Team" useGeneratedKeys="true" keyProperty="teamId">
+        insert into team
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="teamName != null">team_name,</if>
+            <if test="admin != null">admin,</if>
+            <if test="phone != null">phone,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="teamName != null">#{teamName},</if>
+            <if test="admin != null">#{admin},</if>
+            <if test="phone != null">#{phone},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTeam" parameterType="Team">
+        update team
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="teamName != null">team_name = #{teamName},</if>
+            <if test="admin != null">admin = #{admin},</if>
+            <if test="phone != null">phone = #{phone},</if>
+        </trim>
+        where team_id = #{teamId}
+    </update>
+
+    <delete id="deleteTeamById" parameterType="Long">
+        delete from team where team_id = #{teamId}
+    </delete>
+
+    <delete id="deleteTeamByIds" parameterType="String">
+        delete from team where team_id in 
+        <foreach item="teamId" collection="array" open="(" separator="," close=")">
+            #{teamId}
+        </foreach>
+    </delete>
+    
+</mapper>
